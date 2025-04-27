@@ -1,103 +1,162 @@
-import Image from "next/image";
+"use client";
+
+import Node from "@/components/node";
+import { useEffect, useRef, useState } from "react";
+import { animate } from "framer-motion";
+import SimpleScene from "@/threejs-scenes/basic";
+
+type Section = {
+  type: "section";
+  id: string;
+  title: string;
+  Scene: React.ComponentType;
+  load: boolean;
+};
+
+type Chapter = {
+  type: "chapter";
+  title: string;
+};
+
+type SectionOrChapter = Section | Chapter;
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const sections: SectionOrChapter[] = [
+    { type: "chapter", title: "Introduction" },
+    {
+      type: "section",
+      id: "basic-scene",
+      title: "Basic Scene",
+      Scene: SimpleScene,
+      load: false,
+    },
+  ];
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  const mainRef = useRef<HTMLDivElement>(null);
+  const [activeSection, setActiveSection] = useState<string>("");
+
+  useEffect(() => {
+    const main = mainRef.current;
+    if (!main) return;
+
+    const handleScroll = () => {
+      const scrollPosition = main.scrollTop + main.clientHeight / 2;
+
+      let current = "";
+      for (const section of sections) {
+        if (section.type !== "section") continue; // Only handle real sections
+
+        const el = document.getElementById(section.id);
+        if (el) {
+          const offsetTop = el.offsetTop;
+          const offsetHeight = el.offsetHeight;
+          if (
+            scrollPosition >= offsetTop &&
+            scrollPosition < offsetTop + offsetHeight
+          ) {
+            current = section.id;
+          }
+        }
+      }
+      setActiveSection(current);
+    };
+
+    main.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => main.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    if (!mainRef.current) return;
+    animate(mainRef.current.scrollTop, 0, {
+      duration: 0.001,
+      onUpdate(value) {
+        if (mainRef.current) {
+          mainRef.current.scrollTop = value;
+        }
+      },
+    });
+  };
+
+  const scrollToBottom = () => {
+    if (!mainRef.current) return;
+    const scrollHeight = mainRef.current.scrollHeight;
+    animate(mainRef.current.scrollTop, scrollHeight, {
+      duration: 0.001,
+      onUpdate(value) {
+        if (mainRef.current) {
+          mainRef.current.scrollTop = value;
+        }
+      },
+    });
+  };
+
+  return (
+    <div className="relative flex flex-row max-h-screen max-w-screen overflow-hidden">
+      <div className="fixed bottom-6 right-28 flex flex-row gap-2 z-50">
+        <button
+          onClick={scrollToTop}
+          className="bg-black hover:bg-neutral-800 transition duration-200 text-white p-2 hover:cursor-pointer w-48 text-sm"
+        >
+          Scroll to Top
+        </button>
+        <button
+          onClick={scrollToBottom}
+          className="bg-black hover:bg-neutral-800 transition duration-200 text-white p-2 hover:cursor-pointer w-48 text-sm"
+        >
+          Scroll to Bottom
+        </button>
+      </div>
+
+      <aside className="w-64 h-screen place-self-center bg-white shadow-lg p-6 rounded-r-xl overflow-y-auto sticky top-0">
+        <nav className="flex flex-col gap-4">
+          {sections.map((section, idx) => {
+            if (section.type === "chapter") {
+              return (
+                <div
+                  key={idx}
+                  className="text-xs uppercase tracking-wider text-gray-500 mt-6 mb-2"
+                >
+                  {section.title}
+                </div>
+              );
+            }
+            if (section.type === "section") {
+              return (
+                <a
+                  key={section.id}
+                  href={`#${section.id}`}
+                  className={`hover:underline underline-offset-4 ${
+                    activeSection === section.id
+                      ? "text-black font-bold"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {section.title}
+                </a>
+              );
+            }
+          })}
+        </nav>
+      </aside>
+
+      <main
+        ref={mainRef}
+        className="flex flex-col gap-y-12 my-14 flex-1 px-8 overflow-y-auto items-center scroll-smooth"
+      >
+        {sections.map((section) =>
+          section.type === "section" ? (
+            <Node
+              key={section.id}
+              title={section.title}
+              id={section.id}
+              automatic_load={section.load}
+            >
+              {() => <section.Scene />}
+            </Node>
+          ) : null
+        )}
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
