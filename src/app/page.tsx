@@ -3,35 +3,9 @@
 import Node from "@/components/node";
 import { useEffect, useRef, useState } from "react";
 import { animate } from "framer-motion";
-import SimpleScene from "@/threejs-scenes/basic";
-
-type Section = {
-  type: "section";
-  id: string;
-  title: string;
-  Scene: React.ComponentType;
-  load: boolean;
-};
-
-type Chapter = {
-  type: "chapter";
-  title: string;
-};
-
-type SectionOrChapter = Section | Chapter;
+import { sections } from "@/data/data";
 
 export default function Home() {
-  const sections: SectionOrChapter[] = [
-    { type: "chapter", title: "Introduction" },
-    {
-      type: "section",
-      id: "basic-scene",
-      title: "Basic Scene",
-      Scene: SimpleScene,
-      load: false,
-    },
-  ];
-
   const mainRef = useRef<HTMLDivElement>(null);
   const [activeSection, setActiveSection] = useState<string>("");
 
@@ -115,7 +89,7 @@ export default function Home() {
               return (
                 <div
                   key={idx}
-                  className="text-xs uppercase tracking-wider text-gray-500 mt-6 mb-2"
+                  className="text-xs uppercase tracking-wider text-gray-500 mt-8"
                 >
                   {section.title}
                 </div>
@@ -129,7 +103,7 @@ export default function Home() {
                   className={`hover:underline underline-offset-4 ${
                     activeSection === section.id
                       ? "text-black font-bold"
-                      : "text-gray-400"
+                      : "text-neutral-700"
                   }`}
                 >
                   {section.title}
