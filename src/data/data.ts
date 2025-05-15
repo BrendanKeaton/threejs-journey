@@ -1,4 +1,5 @@
 import FirstThreeJSProject from "@/threejs-scenes/first_threejs_project";
+import TransformObject from "@/threejs-scenes/transform_objects";
 
 type Section = {
   type: "section";
@@ -22,6 +23,13 @@ export const sections: SectionOrChapter[] = [
     id: "first-threejs-project",
     title: "First Three.js Project",
     Scene: FirstThreeJSProject,
+    load: true,
+  },
+  {
+    type: "section",
+    id: "transform-object",
+    title: "Transform Objects",
+    Scene: TransformObject,
     load: true,
   },
   { type: "chapter", title: "02 - Classic Techniques" },

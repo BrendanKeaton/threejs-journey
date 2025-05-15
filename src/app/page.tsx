@@ -67,7 +67,7 @@ export default function Home() {
 
   return (
     <div className="relative flex flex-row max-h-screen max-w-screen overflow-hidden">
-      <div className="fixed bottom-6 right-28 flex flex-row gap-2 z-50">
+      <div className="fixed bottom-6 right-32 flex flex-row gap-2 z-50 px-4 rounded-lg py-3 backdrop-blur-md border border-neutral-400">
         <button
           onClick={scrollToTop}
           className="bg-black hover:bg-neutral-800 transition duration-200 text-white p-2 hover:cursor-pointer w-48 text-sm"

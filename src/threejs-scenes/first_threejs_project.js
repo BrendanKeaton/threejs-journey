@@ -28,6 +28,16 @@ export default function FirstThreeJSProject() {
 
         // Camera
 
+        const camera = new THREE.PerspectiveCamera(
+          75,
+          container.clientWidth / container.clientHeight
+        );
+        camera.position.z = 3;
+        camera.position.y = 0.7;
+        scene.add(camera);
+
+        renderer.render(scene, camera);
+
         // CLEANUP LOGIC FOR AUTOMATIC / MANUAL LOADS
         return () => {
           if (container && renderer.domElement.parentNode === container) {

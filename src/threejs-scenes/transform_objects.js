@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-export default function ThreejsTemplate() {
+export default function TTransformObject() {
   const mountRef = useRef(null);
   const isMounted = useRef(false);
 
@@ -19,7 +19,7 @@ export default function ThreejsTemplate() {
 
         // add your Three.js Here
 
-        // CLEANUP LOGIC FOR AUTOMATIC / MANUAL LOAD
+        // CLEANUP LOGIC FOR AUTOMATIC / MANUAL LOADS
         return () => {
           if (container && renderer.domElement.parentNode === container) {
             container.removeChild(renderer.domElement);
